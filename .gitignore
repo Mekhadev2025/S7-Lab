@@ -1,0 +1,7 @@
+# Ignore all .a.out files
+*.a.out
+
+# Ignore other file types
+*.log
+*.tmp
+*.o
