@@ -1,0 +1,5 @@
+Input :Hello Mekh! How is Mekha?
+
+output
+--------
+/nHello /n! How is

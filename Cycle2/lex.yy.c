@@ -731,13 +731,13 @@ case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
 #line 8 "non_mekh.l"
-{ printf("%s", yytext); }
+{ printf("/n%s", yytext); }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
 #line 9 "non_mekh.l"
-{ printf("%s", yytext); }
+{ printf("/n%s", yytext); }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
