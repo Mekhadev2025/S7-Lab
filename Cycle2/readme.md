@@ -12,7 +12,6 @@ CYCLE 2
 
   1.Store the lex program as example.l
   <br>
-
   2.flex example.l
   <br>
   3.gcc lex.yy.c -o example -lfl
