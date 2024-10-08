@@ -1,0 +1,11 @@
+Input
+------
+Enter Any Arithmetic Expression which can have operations Addition, Subtraction, Multiplication, Division, Modulus and Round brackets:
+
+3 + 4 * (2 - 1)
+
+output
+-------
+Result=3
+
+Entered arithmetic expression is Valid
