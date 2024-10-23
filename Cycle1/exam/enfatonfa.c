@@ -1,105 +1,258 @@
- #include <stdio.h>
-#include <string.h>
+ #include<stdio.h>
+#include<stdlib.h>
+struct node
+{
+        int st;
+        struct node *link;
+};
 
-#define MAX_STATES 100
-#define MAX_ALPHABET 3  // For alphabets a, b, c
+void findclosure(int,int);
+void insert_trantbl(int ,char, int);
+int findalpha(char);
+void findfinalstate(void);
+void unionclosure(int);
+void print_e_closure(int);
+static int set[20],nostate,noalpha,s,notransition,nofinal,start,finalstate[20],r,buffer[20];
+char alphabet[20],c;
+static int e_closure[20][20]={0};
+struct node * transition[20][20]={NULL};
+void main()
+{
+           int i,j,k,m,t,n;
 
-void epsilonClosure(int state, int nfa_with_e[MAX_STATES][MAX_ALPHABET + 1], int closure[], int visited[], int num_states) {
-    if (visited[state]) return;
-    visited[state] = 1;
-    closure[state] = 1;  // Add this state to its own closure
-    if (nfa_with_e[state][MAX_ALPHABET] != -1) {  // Check for epsilon transitions
-        epsilonClosure(nfa_with_e[state][MAX_ALPHABET], nfa_with_e, closure, visited, num_states);
-    }
-}
+           struct node *temp;
+           printf("enter the number of alphabets?\n");
+           scanf("%d",&noalpha);
+           getchar();
+           printf("NOTE:- [ use letter e as epsilon]\n");
 
-void convertToNFAWithoutEpsilon(int nfa_with_e[MAX_STATES][MAX_ALPHABET + 1], int num_states) {
-    int epsilon_closure[MAX_STATES][MAX_STATES] = {0};  // Each state's ε-closure
+          printf("NOTE:- [e must be last character ,if it is present]\n");
 
-    // Calculate epsilon-closure for each state
-    for (int i = 0; i < num_states; i++) {
-        int visited[MAX_STATES] = {0};
-        epsilonClosure(i, nfa_with_e, epsilon_closure[i], visited, num_states);
-    }
+          printf("\nEnter alphabets?\n");
+          for(i=0;i<noalpha;i++)
+         {
 
-    // Print start state
-    printf("Start state: {");
-    for (int i = 0; i < num_states; i++) {
-        if (epsilon_closure[0][i]) printf("q%d,", i + 1);
-    }
-    printf("}\n");
+                  alphabet[i]=getchar();
+                  getchar();
+        }
+        printf("Enter the number of states?\n");
+        scanf("%d",&nostate);
+        printf("Enter the start state?\n");
+        scanf("%d",&start);
+        printf("Enter the number of final states?\n");
+        scanf("%d",&nofinal);
+        printf("Enter the final states?\n");
+        for(i=0;i<nofinal;i++)
+                scanf("%d",&finalstate[i]);
+         printf("Enter no of transition?\n");
+        scanf("%d",&notransition);
+        printf("NOTE:- [Transition is in the form--> qno   alphabet   qno]\n");
+        printf("NOTE:- [States number must be greater than zero]\n");
+        printf("\nEnter transition?\n");
+        for(i=0;i<notransition;i++)
+        {
 
-    // Print transitions
-    printf("Transitions:\n");
-    for (int state = 0; state < num_states; state++) {
-        for (int symbol = 0; symbol < MAX_ALPHABET; symbol++) {
-            printf("{");
-            for (int i = 0; i < num_states; i++) {
-                if (epsilon_closure[state][i]) printf("q%d,", i + 1);
-            }
-            printf("}   %c   ->   {", 'a' + symbol);
 
-            int result_closure[MAX_STATES] = {0};
-            for (int i = 0; i < num_states; i++) {
-                if (epsilon_closure[state][i] && nfa_with_e[i][symbol] != -1) {
-                    int next_state = nfa_with_e[i][symbol];
-                    for (int j = 0; j < num_states; j++) {
-                        if (epsilon_closure[next_state][j]) result_closure[j] = 1;
-                    }
+                scanf("%d %c%d",&r,&c,&s);
+                insert_trantbl(r,c,s);
+
+        }
+
+        printf("\n");
+
+        for(i=1;i<=nostate;i++)
+        {
+                c=0;
+                for(j=0;j<20;j++)
+
+                {
+                              buffer[j]=0;
+                               e_closure[i][j]=0;
                 }
-            }
+                findclosure(i,i);
+        }
+        printf("Equivalent NFA without epsilon\n");
+        printf("-----------------------------------\n");
+        printf("start state:");
+        print_e_closure(start);
+        printf("\nAlphabets:");
+        for(i=0;i<noalpha;i++)
+                  printf("%c ",alphabet[i]);
+        printf("\nStates :" );
+        for(i=1;i<=nostate;i++)
+                  print_e_closure(i);
 
-            for (int i = 0; i < num_states; i++) {
-                if (result_closure[i]) printf("q%d,", i + 1);
-            }
-            printf("}\n");
-        }
-    }
+        printf("\nTransitions are...:\n");
 
-    // Print final states
-    printf("Final states: ");
-    for (int state = 0; state < num_states; state++) {
-        int is_final = 0;
-        for (int i = 0; i < num_states; i++) {
-            if (epsilon_closure[state][i]) is_final = 1;
+        for(i=1;i<=nostate;i++)
+        {
+
+                  for(j=0;j<noalpha-1;j++)
+                 {
+                          for(m=1;m<=nostate;m++)
+                                        set[m]=0;
+                          for(k=0;e_closure[i][k]!=0;k++)
+                          {
+
+                                    t=e_closure[i][k];
+                                   temp=transition[t][j];
+                                   while(temp!=NULL)
+                                  {
+
+                                             unionclosure(temp->st);
+                                            temp=temp->link;
+                                   }
+                         }
+                        printf("\n");
+                        print_e_closure(i);
+                        printf("%c\t",alphabet[j]   );
+                        printf("{");
+                        for(n=1;n<=nostate;n++)
+                        {
+                                     if(set[n]!=0)
+                                             printf("q%d,",n);
+                        }
+                         printf("}");
+                }
         }
-        if (is_final) {
-            printf("{");
-            for (int i = 0; i < num_states; i++) {
-                if (epsilon_closure[state][i]) printf("q%d,", i + 1);
-            }
-            printf("}  ");
-        }
-    }
-    printf("\n");
+        printf("\nFinal states:");
+        findfinalstate();
+
+
+
+
 }
 
-int main() {
-    int nfa_with_e[MAX_STATES][MAX_ALPHABET + 1];
-    int num_states, transitions;
+void findclosure(int x,int sta)
+{
+            struct node *temp;
+            int i;
+           if(buffer[x])
+                     return;
+             e_closure[sta][c++]=x;
+            buffer[x]=1;
+             if(alphabet[noalpha-1]=='e' && transition[x][noalpha-1]!=NULL)
+                {
+                             temp=transition[x][noalpha-1];
+                             while(temp!=NULL)
+                            {
+                                         findclosure(temp->st,sta);
+                                         temp=temp->link;
+                             }
+                }
+  }
 
-    // Initialize NFA with -1 (no transitions)
-    memset(nfa_with_e, -1, sizeof(nfa_with_e));
-
-    printf("Enter number of states: ");
-    scanf("%d", &num_states);
-
-    printf("Enter number of transitions: ");
-    scanf("%d", &transitions);
-
-    printf("Enter transitions (state symbol next_state) where symbol is a/b/c/e (for epsilon):\n");
-    for (int i = 0; i < transitions; i++) {
-        int state, next_state;
-        char symbol;
-        scanf("%d %c %d", &state, &symbol, &next_state);
-        if (symbol == 'e') {
-            nfa_with_e[state][MAX_ALPHABET] = next_state;  // Store epsilon transition
-        } else {
-            nfa_with_e[state][symbol - 'a'] = next_state;
-        }
-    }
-
-    convertToNFAWithoutEpsilon(nfa_with_e, num_states);
-
-    return 0;
+void insert_trantbl(int r,char c,int s)
+{
+           int j;
+           struct node *temp;
+            j=findalpha(c);
+          if(j==999)
+          {
+                     printf("error\n");
+                    exit(0);
+          }
+         temp=(struct node *) malloc(sizeof(struct node));
+         temp->st=s;
+         temp->link=transition[r][j];
+         transition[r][j]=temp;
 }
+
+int findalpha(char c)
+{
+            int i;
+            for(i=0;i<noalpha;i++)
+                   if(alphabet[i]==c)
+                          return i;
+
+                return(999);
+
+
+}
+
+void unionclosure(int i)
+{
+              int j=0,k;
+             while(e_closure[i][j]!=0)
+             {
+                      k=e_closure[i][j];
+                      set[k]=1;
+                      j++;
+             }
+}
+void findfinalstate()
+{
+            int i,j,k,t;
+            for(i=0;i<nofinal;i++)
+           {
+                      for(j=1;j<=nostate;j++)
+                      {
+                              for(k=0;e_closure[j][k]!=0;k++)
+                                {
+                                         if(e_closure[j][k]==finalstate[i])
+                                        {
+
+                                                 print_e_closure(j);
+                                        }
+                               }
+                      }
+             }
+
+
+  }
+
+void print_e_closure(int i)
+{
+        int j=0;
+        printf("{");
+       if(e_closure[i][j]!=0)
+                        printf("q%d,",e_closure[i][0]);
+         printf("}\t");
+}
+/*OUTPUT
+p@hp-HP-Pavilion-Laptop-14-dv2xxx:~/COMPILER LAB/CYCLE 1/PROGRAM 3$ gcc enfa_nfa.c
+hp@hp-HP-Pavilion-Laptop-14-dv2xxx:~/COMPILER LAB/CYCLE 1/PROGRAM 3$ ./a.out
+enter the number of alphabets?
+4 
+NOTE:- [ use letter e as epsilon]
+NOTE:- [e must be last character ,if it is present]
+
+Enter alphabets?
+0 1 2 e
+Enter the number of states?
+3
+Enter the start state?
+1
+Enter the number of final states?
+1
+Enter the final states?
+3
+Enter no of transition?
+5
+NOTE:- [Transition is in the form--> qno   alphabet   qno]
+NOTE:- [States number must be greater than zero]
+
+Enter transition?
+1 0 1
+1 e 2
+2 1 2
+2 e 3
+3 2 3
+
+Equivalent NFA without epsilon
+-----------------------------------
+start state:{q1,}	
+Alphabets:0 1 2 e 
+States :{q1,}	{q2,}	{q3,}	
+Transitions are...:
+
+{q1,}	0	{q1,q2,q3,}
+{q1,}	1	{q2,q3,}
+{q1,}	2	{q3,}
+{q2,}	0	{}
+{q2,}	1	{q2,q3,}
+{q2,}	2	{q3,}
+{q3,}	0	{}
+{q3,}	1	{}
+{q3,}	2	{q3,}
+Final states:{q1,}	{q2,}	{q3,}*/
