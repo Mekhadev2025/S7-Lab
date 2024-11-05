@@ -1,0 +1,10 @@
+Enter the no of productions : 
+3
+Enter the productions:
+E=TR
+R=+TR|$
+T=FY
+Enter a variable whose fisrt & follow is to be found:E
+First(E)={}
+Follow(E)={$}
+Want to continue or not(1/0) ? 0
